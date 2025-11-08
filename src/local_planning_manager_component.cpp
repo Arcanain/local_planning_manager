@@ -2,10 +2,10 @@
 #include <stdexcept>
 #include <cmath> 
 
-static constexpr const char *PUREPURSUITNODE = "pure_pursuit_node";
-static constexpr const char *DWANODE = "dwa_node";
-static constexpr const char *STOPPINGNODE = "stopping_node";
-static constexpr const char *INPLACETURNNODE = "inplace_turn_node";
+static constexpr const char *PURE_PURSUIT_NODE   = "pure_pursuit_node";
+static constexpr const char *DWA_NODE            = "dwa_node";
+static constexpr const char *STOP_MOTION_NODE    = "stop_motion_node";     // 修正
+static constexpr const char *IN_PLACE_TURN_NODE  = "in_place_turn_node";   ;
 
 namespace local_planning_manager
 {
@@ -45,31 +45,31 @@ namespace local_planning_manager
         // 各stateIdに対応するSemanticStateを登録
 
         SemanticState purepuresuitState;
-        purepuresuitState.setNodeState(PUREPURSUITNODE,  SemanticState::State::ACTIVE);
-        purepuresuitState.setNodeState(DWANODE,          SemanticState::State::INACTIVE);
-        purepuresuitState.setNodeState(STOPPINGNODE,     SemanticState::State::INACTIVE);
-        purepuresuitState.setNodeState(INPLACETURNNODE,  SemanticState::State::INACTIVE);
+        purepuresuitState.setNodeState(PURE_PURSUIT_NODE,  SemanticState::State::ACTIVE);
+        purepuresuitState.setNodeState(DWA_NODE,          SemanticState::State::INACTIVE);
+        purepuresuitState.setNodeState(STOP_MOTION_NODE,     SemanticState::State::INACTIVE);
+        purepuresuitState.setNodeState(IN_PLACE_TURN_NODE,  SemanticState::State::INACTIVE);
         state_map_["PurePuresuit"] = purepuresuitState;      
         
         SemanticState dwaState;
-        dwaState.setNodeState(DWANODE,         SemanticState::State::ACTIVE);
-        dwaState.setNodeState(PUREPURSUITNODE, SemanticState::State::INACTIVE);
-        dwaState.setNodeState(STOPPINGNODE,    SemanticState::State::INACTIVE);
-        dwaState.setNodeState(INPLACETURNNODE, SemanticState::State::INACTIVE); 
+        dwaState.setNodeState(DWA_NODE,         SemanticState::State::ACTIVE);
+        dwaState.setNodeState(PURE_PURSUIT_NODE, SemanticState::State::INACTIVE);
+        dwaState.setNodeState(STOP_MOTION_NODE,    SemanticState::State::INACTIVE);
+        dwaState.setNodeState(IN_PLACE_TURN_NODE, SemanticState::State::INACTIVE); 
         state_map_["DWA"] = dwaState;
 
         SemanticState stoppingState;
-        stoppingState.setNodeState(PUREPURSUITNODE, SemanticState::State::INACTIVE);
-        stoppingState.setNodeState(DWANODE,         SemanticState::State::INACTIVE);
-        stoppingState.setNodeState(STOPPINGNODE,    SemanticState::State::ACTIVE);
-        stoppingState.setNodeState(INPLACETURNNODE, SemanticState::State::INACTIVE);
+        stoppingState.setNodeState(PURE_PURSUIT_NODE, SemanticState::State::INACTIVE);
+        stoppingState.setNodeState(DWA_NODE,         SemanticState::State::INACTIVE);
+        stoppingState.setNodeState(STOP_MOTION_NODE,    SemanticState::State::ACTIVE);
+        stoppingState.setNodeState(IN_PLACE_TURN_NODE, SemanticState::State::INACTIVE);
         state_map_["Stopping"] = stoppingState;
 
         SemanticState inplaceTurnState;
-        inplaceTurnState.setNodeState(PUREPURSUITNODE, SemanticState::State::INACTIVE);
-        inplaceTurnState.setNodeState(DWANODE,         SemanticState::State::INACTIVE);
-        inplaceTurnState.setNodeState(STOPPINGNODE,    SemanticState::State::INACTIVE);
-        inplaceTurnState.setNodeState(INPLACETURNNODE, SemanticState::State::ACTIVE); 
+        inplaceTurnState.setNodeState(PURE_PURSUIT_NODE, SemanticState::State::INACTIVE);
+        inplaceTurnState.setNodeState(DWA_NODE,         SemanticState::State::INACTIVE);
+        inplaceTurnState.setNodeState(STOP_MOTION_NODE,    SemanticState::State::INACTIVE);
+        inplaceTurnState.setNodeState(IN_PLACE_TURN_NODE, SemanticState::State::ACTIVE); 
         state_map_["InplaceTurn"] = inplaceTurnState;
 
         // 必要に応じて他の状態も追加
