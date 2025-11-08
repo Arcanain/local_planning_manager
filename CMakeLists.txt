@@ -43,25 +43,35 @@ target_include_directories(local_planning_manager_library PUBLIC
 target_compile_features(local_planning_manager_library PUBLIC cxx_std_17)
 
 # node entry (main)
-add_executable(local_planning_manager_node_executable
+add_executable(local_planning_manager
   src/local_planning_manager.cpp
 )
 
-target_link_libraries(local_planning_manager_node_executable
+target_link_libraries(local_planning_manager
   local_planning_manager_library
 )
 
-ament_target_dependencies(local_planning_manager_node_executable
+ament_target_dependencies(local_planning_manager
   rclcpp
 )
 
 # install
 install(TARGETS
-  local_planning_manager_library
-  local_planning_manager_node_executable
+  local_planning_manager
   DESTINATION lib/${PROJECT_NAME}
 )
-install(DIRECTORY include/ DESTINATION include)
+
+install(TARGETS
+  local_planning_manager_library
+  EXPORT export_${PROJECT_NAME}
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
+)
+
+install(DIRECTORY include/
+  DESTINATION include
+)
 
 # (optional) install configs
 # install(DIRECTORY config/ DESTINATION share/${PROJECT_NAME})
