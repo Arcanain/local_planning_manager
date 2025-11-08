@@ -3,10 +3,10 @@
 #include <stdexcept>
 
 // 実ノード名は当面固定（YAMLに合わせる）
-static constexpr const char *PUREPURSUITNODE = "pure_pursuit_node";
-static constexpr const char *DWANODE = "dwa_node";
-static constexpr const char *STOPPINGNODE = "stopping_node";
-static constexpr const char *INPLACETURNNODE = "inplace_turn_node";
+static constexpr const char *PURE_PURSUIT_NODE   = "pure_pursuit_node";
+static constexpr const char *DWA_NODE            = "dwa_node";
+static constexpr const char *STOP_MOTION_NODE    = "stop_motion_node";     // 修正
+static constexpr const char *IN_PLACE_TURN_NODE  = "in_place_turn_node";   ;
 
 namespace local_planning_manager
 {
@@ -41,23 +41,23 @@ namespace local_planning_manager
         // --- Lifecycle Clients ---
         // change_state service clients
         dwa_lc_client_ = this->create_client<lifecycle_msgs::srv::ChangeState>(
-            std::string("/") + DWANODE + "/change_state");
+            std::string("/") + DWA_NODE + "/change_state");
         purepursuit_lc_client_ = this->create_client<lifecycle_msgs::srv::ChangeState>(
-            std::string("/") + PUREPURSUITNODE + "/change_state");
+            std::string("/") + PURE_PURSUIT_NODE + "/change_state");
         stopping_lc_client_ = this->create_client<lifecycle_msgs::srv::ChangeState>(
-            std::string("/") + STOPPINGNODE + "/change_state");
+            std::string("/") + STOP_MOTION_NODE + "/change_state");
         inplace_turn_lc_client_ = this->create_client<lifecycle_msgs::srv::ChangeState>(
-            std::string("/") + INPLACETURNNODE + "/change_state");
+            std::string("/") + IN_PLACE_TURN_NODE + "/change_state");
 
         // get_state service clients
         dwa_get_client_ = this->create_client<lifecycle_msgs::srv::GetState>(
-            std::string("/") + DWANODE + "/get_state");
+            std::string("/") + DWA_NODE + "/get_state");
         purepursuit_get_client_ = this->create_client<lifecycle_msgs::srv::GetState>(
-            std::string("/") + PUREPURSUITNODE + "/get_state");
+            std::string("/") + PURE_PURSUIT_NODE + "/get_state");
         stopping_get_client_ = this->create_client<lifecycle_msgs::srv::GetState>(
-            std::string("/") + STOPPINGNODE + "/get_state");
+            std::string("/") + STOP_MOTION_NODE + "/get_state");
         inplace_turn_get_client_ = this->create_client<lifecycle_msgs::srv::GetState>(
-            std::string("/") + INPLACETURNNODE + "/get_state");
+            std::string("/") + IN_PLACE_TURN_NODE + "/get_state");
 
         // --- Timer ---
         auto period = std::chrono::duration<double>(1.0 / std::max(1e-3, tick_hz)); // 周期[s]
@@ -304,21 +304,11 @@ namespace local_planning_manager
         // 管理しているlifecycleノードの状態を取得し，SemanticStateを構築する
         SemanticState semantic;
         // 各ノードの状態を取得
-        /*
-        semantic.pure_pursuit_state = getNodeState_(purepursuit_get_client_);
-        semantic.dwa_state = getNodeState_(dwa_get_client_);
-        semantic.stopping_state = getNodeState_(stopping_get_client_);
-        semantic.inplace_turn_state = getNodeState_(inplace_turn_get_client_);
-        return semantic;
-        */
-        semantic.setNodeState("pure_pursuit_node",
-                                static_cast<SemanticState::State>(getNodeState_(purepursuit_get_client_)));
-        semantic.setNodeState("dwa_node",
-                                static_cast<SemanticState::State>(getNodeState_(dwa_get_client_)));
-        semantic.setNodeState("stopping_node",
-                                static_cast<SemanticState::State>(getNodeState_(stopping_get_client_)));
-        semantic.setNodeState("inplace_turn_node",
-                                static_cast<SemanticState::State>(getNodeState_(inplace_turn_get_client_)));
+        semantic.setNodeState(PURE_PURSUIT_NODE, static_cast<SemanticState::State>(getNodeState_(purepursuit_get_client_)));
+        semantic.setNodeState(DWA_NODE,          static_cast<SemanticState::State>(getNodeState_(dwa_get_client_)));
+        semantic.setNodeState(STOP_MOTION_NODE,  static_cast<SemanticState::State>(getNodeState_(stopping_get_client_)));
+        semantic.setNodeState(IN_PLACE_TURN_NODE,static_cast<SemanticState::State>(getNodeState_(inplace_turn_get_client_)));
+
         return semantic;
     }
 
@@ -340,7 +330,7 @@ namespace local_planning_manager
         {
             return future.get()->current_state.id;
         }
-        RCLCPP_WARN(this->get_logger(), "[LOG] LocalManager: Timeout. Failed to get node state");
+        RCLCPP_WARN(this->get_logger(), "Timeout. Failed to get node state");
         return lifecycle_msgs::msg::State::PRIMARY_STATE_UNKNOWN;
     }
 
@@ -382,13 +372,13 @@ namespace local_planning_manager
     {
         rclcpp::Client<lifecycle_msgs::srv::ChangeState>::SharedPtr client = nullptr;
 
-        if (std::string(node_key) == PUREPURSUITNODE)
+        if (std::string(node_key) == PURE_PURSUIT_NODE)
             client = purepursuit_lc_client_;
-        else if (std::string(node_key) == DWANODE)
+        else if (std::string(node_key) == DWA_NODE)
             client = dwa_lc_client_;
-        else if (std::string(node_key) == STOPPINGNODE)
+        else if (std::string(node_key) == STOP_MOTION_NODE)
             client = stopping_lc_client_;
-        else if (std::string(node_key) == INPLACETURNNODE)
+        else if (std::string(node_key) == IN_PLACE_TURN_NODE)
             client = inplace_turn_lc_client_;
         else
         {
@@ -415,13 +405,13 @@ namespace local_planning_manager
     {
         rclcpp::Client<lifecycle_msgs::srv::ChangeState>::SharedPtr client = nullptr;
 
-        if (std::string(node_key) == PUREPURSUITNODE)
+        if (std::string(node_key) == PURE_PURSUIT_NODE)
             client = purepursuit_lc_client_;
-        else if (std::string(node_key) == DWANODE)
+        else if (std::string(node_key) == DWA_NODE)
             client = dwa_lc_client_;
-        else if (std::string(node_key) == STOPPINGNODE)
+        else if (std::string(node_key) == STOP_MOTION_NODE)
             client = stopping_lc_client_;
-        else if (std::string(node_key) == INPLACETURNNODE)
+        else if (std::string(node_key) == IN_PLACE_TURN_NODE)
             client = inplace_turn_lc_client_;
         else
         {
@@ -443,91 +433,91 @@ namespace local_planning_manager
     bool LocalPlanningManagerNode::transitionPurePuresuitToDwa_()
     {
         bool ok = true;
-        ok = ok && deactivateNode_(PUREPURSUITNODE);
-        ok = ok && activateNode_(DWANODE);
+        ok = ok && deactivateNode_(PURE_PURSUIT_NODE);
+        ok = ok && activateNode_(DWA_NODE);
         // 念のため他は落としておく（冗長でOK）
-        ok = ok && deactivateNode_(STOPPINGNODE);
-        ok = ok && deactivateNode_(INPLACETURNNODE);
+        ok = ok && deactivateNode_(STOP_MOTION_NODE);
+        ok = ok && deactivateNode_(IN_PLACE_TURN_NODE);
         return ok;
     }
 
     bool LocalPlanningManagerNode::transitionPurePuresuitToStop_()
     {
         bool ok = true;
-        ok = ok && deactivateNode_(PUREPURSUITNODE);
-        ok = ok && activateNode_(STOPPINGNODE);
-        ok = ok && deactivateNode_(DWANODE);
-        ok = ok && deactivateNode_(INPLACETURNNODE);
+        ok = ok && deactivateNode_(PURE_PURSUIT_NODE);
+        ok = ok && activateNode_(STOP_MOTION_NODE);
+        ok = ok && deactivateNode_(DWA_NODE);
+        ok = ok && deactivateNode_(IN_PLACE_TURN_NODE);
         return ok;
     }
 
     bool LocalPlanningManagerNode::transitionDwaToStop_()
     {
         bool ok = true;
-        ok = ok && deactivateNode_(DWANODE);
-        ok = ok && activateNode_(STOPPINGNODE);
-        ok = ok && deactivateNode_(PUREPURSUITNODE);
-        ok = ok && deactivateNode_(INPLACETURNNODE);
+        ok = ok && deactivateNode_(DWA_NODE);
+        ok = ok && activateNode_(STOP_MOTION_NODE);
+        ok = ok && deactivateNode_(PURE_PURSUIT_NODE);
+        ok = ok && deactivateNode_(IN_PLACE_TURN_NODE);
         return ok;
     }
 
     bool LocalPlanningManagerNode::transitionDwaToPurePuresuit_()
     {
         bool ok = true;
-        ok = ok && deactivateNode_(DWANODE);
-        ok = ok && activateNode_(PUREPURSUITNODE);
-        ok = ok && deactivateNode_(STOPPINGNODE);
-        ok = ok && deactivateNode_(INPLACETURNNODE);
+        ok = ok && deactivateNode_(DWA_NODE);
+        ok = ok && activateNode_(PURE_PURSUIT_NODE);
+        ok = ok && deactivateNode_(STOP_MOTION_NODE);
+        ok = ok && deactivateNode_(IN_PLACE_TURN_NODE);
         return ok;
     }
 
     bool LocalPlanningManagerNode::transitionStopToPurePuresuit_()
     {
         bool ok = true;
-        ok = ok && deactivateNode_(STOPPINGNODE);
-        ok = ok && activateNode_(PUREPURSUITNODE);
-        ok = ok && deactivateNode_(DWANODE);
-        ok = ok && deactivateNode_(INPLACETURNNODE);
+        ok = ok && deactivateNode_(STOP_MOTION_NODE);
+        ok = ok && activateNode_(PURE_PURSUIT_NODE);
+        ok = ok && deactivateNode_(DWA_NODE);
+        ok = ok && deactivateNode_(IN_PLACE_TURN_NODE);
         return ok;
     }
 
     bool LocalPlanningManagerNode::transitionStopToDwa_()
     {
         bool ok = true;
-        ok = ok && deactivateNode_(STOPPINGNODE);
-        ok = ok && activateNode_(DWANODE);
-        ok = ok && deactivateNode_(PUREPURSUITNODE);
-        ok = ok && deactivateNode_(INPLACETURNNODE);
+        ok = ok && deactivateNode_(STOP_MOTION_NODE);
+        ok = ok && activateNode_(DWA_NODE);
+        ok = ok && deactivateNode_(PURE_PURSUIT_NODE);
+        ok = ok && deactivateNode_(IN_PLACE_TURN_NODE);
         return ok;
     }
 
     bool LocalPlanningManagerNode::transitionStopToInplaceTurn_()
     {
         bool ok = true;
-        ok = ok && deactivateNode_(STOPPINGNODE);
-        ok = ok && activateNode_(INPLACETURNNODE);
-        ok = ok && deactivateNode_(PUREPURSUITNODE);
-        ok = ok && deactivateNode_(DWANODE);
+        ok = ok && deactivateNode_(STOP_MOTION_NODE);
+        ok = ok && activateNode_(IN_PLACE_TURN_NODE);
+        ok = ok && deactivateNode_(PURE_PURSUIT_NODE);
+        ok = ok && deactivateNode_(DWA_NODE);
         return ok;
     }
 
     bool LocalPlanningManagerNode::transitionInplaceTurnToPurePuresuit_()
     {
         bool ok = true;
-        ok = ok && deactivateNode_(INPLACETURNNODE);
-        ok = ok && activateNode_(PUREPURSUITNODE);
-        ok = ok && deactivateNode_(DWANODE);
-        ok = ok && deactivateNode_(STOPPINGNODE);
+        ok = ok && deactivateNode_(IN_PLACE_TURN_NODE);
+        ok = ok && activateNode_(PURE_PURSUIT_NODE);
+        ok = ok && deactivateNode_(DWA_NODE);
+        ok = ok && deactivateNode_(STOP_MOTION_NODE);
         return ok;
     }
 
     bool LocalPlanningManagerNode::transitionInplaceTurnToDwa_()
     {
         bool ok = true;
-        ok = ok && deactivateNode_(INPLACETURNNODE);
-        ok = ok && activateNode_(DWANODE);
-        ok = ok && deactivateNode_(PUREPURSUITNODE);
-        ok = ok && deactivateNode_(STOPPINGNODE);
+        ok = ok && deactivateNode_(IN_PLACE_TURN_NODE);
+        ok = ok && activateNode_(DWA_NODE);
+        ok = ok && deactivateNode_(PURE_PURSUIT_NODE);
+        ok = ok && deactivateNode_(STOP_MOTION_NODE);
         return ok;
     }
 
